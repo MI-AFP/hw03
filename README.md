@@ -14,7 +14,7 @@ To complete you will need to work also with `src/Examples.hs` and `src/Data/Dumm
 4. `geometricSequence` should return for given `a` (first parameter) and `r` (second parameter) a [geometric sequence](https://en.wikipedia.org/wiki/Geometric_progression) as endless list.
 4. `primes` should return endless list of [primes](). Try to find solution on your own, don't think too much about effectiveness and enjoy laziness with Haskell. You can use definition of prime which leads to [generating primes](https://en.wikipedia.org/wiki/Generating_primes).
 5. `factorization` should return for given number a sorted list of its [prime factors](https://en.wikipedia.org/wiki/Prime_factor) in ascending order (e.g. for `50` the result should be `[2,5,5]`, because `2*5*5 = 50`). Using `primes` is recommended.
-6. `phi` should work as [Euler's totient function](https://en.wikipedia.org/wiki/Euler%27s_totient_function) known as &#981;. You may use `primes` and `factorization` to make your life easier.
+6. `phi` should work as [Euler's totient function](https://en.wikipedia.org/wiki/Euler%27s_totient_function) known also as &#966; or &#981; (greek letter [Phi](https://en.wikipedia.org/wiki/Phi). You may use `primes` and `factorization` to make your life easier.
 7. `dummyListExample1`, `stringExample2`, `stringExample2` should be assigned with values from `Data.DummyList.Examples` (`example1`) and `Data.MyString.Examples` (`example2` and `example3`). It is **not allowed** to copy or "implement" them, working import must be used.
 
 Hints & general requirements: 
