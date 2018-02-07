@@ -1,4 +1,4 @@
-module Examples where
+module Data.DummyList.Examples where
 
 -- !!! DO NOT CHANGE THIS MODULE !!!
 
