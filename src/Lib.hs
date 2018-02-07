@@ -1,6 +1,5 @@
 module Lib where
 
-
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPES!
 data MaritalStatus = Single | Married | Widowed
@@ -14,8 +13,9 @@ data AcademicTitle = DiS | Bc | Mgr | Ing | PhDr | MUDr | PhD | Doc | Prof
 
 data Person = Person { pFirstname     :: String
                      , pLastname      :: String
-                     , pGender        :: String
-                     , pMaritalStatus :: String
+                     , pGender        :: Gender
+                     , pMaritalStatus :: MaritalStatus
+                     , pAge           :: Int
                      , pATitles       :: [AcademicTitle]
                      }
 
@@ -30,6 +30,7 @@ data Person = Person { pFirstname     :: String
 -- |
 -- | https://www.muni.cz/o-univerzite/uredni-deska/oslovovani-akademickych-pracovniku
 -- | http://www.etiketavse.estranky.cz/clanky/etiketa/4.-oslovovani-a-spolecenska-vyznamnost.html
+-- | http://www.studenta.cz/vysokoskolske-tituly-jak-oslovovat-na-akademicke-pude/magazin/article/587
 -- TODO: implement czech salutation which passes the tests
 czechSalutation :: Person -> String
 czechSalutation = undefined
@@ -37,54 +38,64 @@ czechSalutation = undefined
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPE!
 -- https://en.wikipedia.org/wiki/Allen%27s_interval_algebra
---                                          X      Y
-data AllensIAlgebraRelation a = Equals   (a, a) (a, a) -- X = Y
-                              | Before   (a, a) (a, a) -- X < Y
-                              | Meets    (a, a) (a, a) -- X m Y
-                              | Overlaps (a, a) (a, a) -- X o Y
-                              | Starts   (a, a) (a, a) -- X s Y
-                              | During   (a, a) (a, a) -- X d Y
-                              | Finishes (a, a) (a, a) -- X f Y
+-- Notice that even DATA CONSTRUCTOR can be written in infix by using ` `
+-- - it is normal, because data constructor is actually function!
+--
+--                                 X                Y
+data AllensIAlgebraRelation a = (a, a) `Equals`   (a, a) -- X = Y
+                              | (a, a) `Before`   (a, a) -- X < Y
+                              | (a, a) `Meets`    (a, a) -- X m Y
+                              | (a, a) `Overlaps` (a, a) -- X o Y
+                              | (a, a) `Starts`   (a, a) -- X s Y
+                              | (a, a) `During`   (a, a) -- X d Y
+                              | (a, a) `Finishes` (a, a) -- X f Y
                              deriving (Show, Read, Eq)
 
 -- | Compare two intervals given as tuples and return appropriate
 -- | Allen's Interval Algebra relation between them
+-- | It assumes that for (x, y) is always x <= y
 -- TODO: implement Allen's algebra relation detection of intervals
 allensComparison :: Ord a => (a, a) -> (a, a) -> AllensIAlgebraRelation a
 allensComparison = undefined
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPE!
-data Shape2D = Circle { spRadius :: Int }
-             | Square { sqSide :: Int }
-             | Rectangle { reWidth :: Int, reHeight :: Int }
-             | Triangle { triSideA :: Int, triSideB :: Int, triSideC :: Int }
+data Shape2D = Circle { ciRadius :: Double }
+             | Square { sqSide :: Double }
+             | Rectangle { reWidth :: Double, reHeight :: Double }
+             | Triangle { triSideA :: Double, triSideB :: Double, triSideC :: Double }
              deriving (Show, Read, Eq)
 
 -- TODO: implement circumference calculation for 2D shapes
-shapeCircumference :: Shape2D -> Int
+shapeCircumference :: Shape2D -> Double
 shapeCircumference = undefined
 
 -- TODO: implement area calculation for 2D shapes
-shapeArea :: Shape2D -> Int
+shapeArea :: Shape2D -> Double
 shapeArea = undefined
 
 -------------------------------------------------------------------------------
--- | Geometric series as infinite list
--- | https://en.wikipedia.org/wiki/Geometric_series
+-- | Geometric sequence as infinite list
+-- | https://en.wikipedia.org/wiki/Geometric_progression
 -- TODO: implement geometric series
-geometricSeries :: Integer -> Integer -> [Integer]
-geometricSeries a r = undefined
+geometricSequence :: Num b => b -> b -> [b]
+geometricSequence = undefined
+
 
 -- TODO: implement infinite list of primes [2, 3, 5, 7, 11, ...]
 primes :: [Integer]
 primes = undefined
 
+-- TODO: implement list of prime factors for given number (use primes list)
+factorization :: Integer -> [Integer]
+factorization = undefined
+
+
 -- | Euler's totient function
 -- | https://en.wikipedia.org/wiki/Euler%27s_totient_function
--- TODO: implement phi(n) by using search in primes
+-- TODO: implement phi(n) by using search in primes & factorization
 phi :: Integer -> Integer
-phi n = undefined
+phi = undefined
 
 -------------------------------------------------------------------------------
 -- !!! DO NOT COPY, JUST IMPORT (avoid conflicts, pick the best option for you)
@@ -93,5 +104,5 @@ phi n = undefined
 dummyListExample1 = undefined
 -- TODO: replace undefined with "example2" from Examples module
 stringExample2 = undefined
--- TODO: replace undefined with "example2" from Examples module
+-- TODO: replace undefined with "example3" from Examples module
 stringExample3 = undefined
