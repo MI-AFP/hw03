@@ -79,7 +79,7 @@ shapeArea = undefined
 -- | https://en.wikipedia.org/wiki/Geometric_progression
 -- TODO: implement geometric series
 geometricSequence :: Num b => b -> b -> [b]
-geometricSequence = undefined
+geometricSequence a r = undefined
 
 
 -- TODO: implement infinite list of primes [2, 3, 5, 7, 11, ...]
@@ -102,7 +102,7 @@ phi = undefined
 -- iii visit the content of modules
 -- TODO: replace undefined with "example1" from Data.DummyList.Examples module
 dummyListExample1 = undefined
--- TODO: replace undefined with "example2" from Examples module
+-- TODO: replace undefined with "example2" from Data.MyString.Examples module
 stringExample2 = undefined
--- TODO: replace undefined with "example3" from Examples module
+-- TODO: replace undefined with "example3" from Data.MyString.Examples module
 stringExample3 = undefined
