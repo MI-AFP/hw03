@@ -1,11 +1,32 @@
 import Test.Hspec
 
+import Control.Exception
+
 import Lib
 
 -- `main` is here so that this module can be run from GHCi on its own.  It is
 -- not needed for automatic spec discovery.
 main :: IO ()
 main = hspec spec
+
+matrixA = [[1,2],[3,4]]
+matrixB = [[5,5],[1,7]]
+matrixC = [[3,1,2],[7,2,1]]
+matrixD = [[3,1],[2,1],[1,3]]
+matrixE = [[1,2,3,4]]
+
+eye10 = [
+            [1,0,0,0,0,0,0,0,0,0],
+            [0,1,0,0,0,0,0,0,0,0],
+            [0,0,1,0,0,0,0,0,0,0],
+            [0,0,0,1,0,0,0,0,0,0],
+            [0,0,0,0,1,0,0,0,0,0],
+            [0,0,0,0,0,1,0,0,0,0],
+            [0,0,0,0,0,0,1,0,0,0],
+            [0,0,0,0,0,0,0,1,0,0],
+            [0,0,0,0,0,0,0,0,1,0],
+            [0,0,0,0,0,0,0,0,0,1]
+        ]
 
 spec :: Spec
 spec = do
@@ -43,59 +64,53 @@ spec = do
       czechSalutation (Person "Anastazie" "Rudá" Female Married 66 [Mgr, Ing, Doc]) `shouldBe` "paní docentka Anastazie Rudá"
       czechSalutation (Person "Denisa" "Šídlová" Female Widowed 74 [Ing, PhD, Prof]) `shouldBe` "paní profesorka Denisa Šídlová"
 
-  describe "allensComparison" $ do
-    it "returns Equals for equal internals" $ do
-      allensComparison (1, 2) (1, 2) `shouldBe` Equals (1, 2) (1, 2)
-      allensComparison (-2, 2) (-2, 2) `shouldBe` Equals (-2, 2) (-2, 2)
-      allensComparison ('a', 'z') ('a', 'z') `shouldBe` Equals ('a', 'z') ('a', 'z')
-    it "returns Before when end of one is before start of other" $ do
-      allensComparison (1, 2) (4, 5) `shouldBe` Before (1, 2) (4, 5)
-      allensComparison (-2, 0) (1, 2) `shouldBe` Before (-2, 0) (1, 2)
-      allensComparison ('a', 'c') ('x', 'z') `shouldBe` Before ('a', 'c') ('x', 'z')
-    it "returns Before when end of one is before start of other (inversed)" $ do
-      allensComparison (4, 5) (1, 2) `shouldBe` Before (1, 2) (4, 5)
-      allensComparison (1, 2) (-2, 0) `shouldBe` Before (-2, 0) (1, 2)
-      allensComparison ('x', 'z') ('a', 'c') `shouldBe` Before ('a', 'c') ('x', 'z')
-    it "returns Meets when end of one is equal to start of other" $ do
-      allensComparison (1, 2) (2, 5) `shouldBe` Meets (1, 2) (2, 5)
-      allensComparison (-2, 0) (0, 2) `shouldBe` Meets (-2, 0) (0, 2)
-      allensComparison ('a', 'c') ('c', 'z') `shouldBe` Meets ('a', 'c') ('c', 'z')
-    it "returns Meets when end of one is equal to start of other (inversed)" $ do
-      allensComparison (2, 5) (1, 2) `shouldBe` Meets (1, 2) (2, 5)
-      allensComparison (0, 2) (-2, 0) `shouldBe` Meets (-2, 0) (0, 2)
-      allensComparison ('c', 'z') ('a', 'c') `shouldBe` Meets ('a', 'c') ('c', 'z')
-    it "returns Overlaps when there is common part but first starts sooner and second end later" $ do
-      allensComparison (1, 4) (2, 5) `shouldBe` Overlaps (1, 4) (2, 5)
-      allensComparison (-2, 1) (-1, 2) `shouldBe` Overlaps (-2, 1) (-1, 2)
-      allensComparison ('a', 'm') ('i', 'z') `shouldBe` Overlaps ('a', 'm') ('i', 'z')
-    it "returns Overlaps when there is common part but first starts sooner and second end later (inversed)" $ do
-      allensComparison (2, 5) (1, 4) `shouldBe` Overlaps (1, 4) (2, 5)
-      allensComparison (-1, 2) (-2, 1) `shouldBe` Overlaps (-2, 1) (-1, 2)
-      allensComparison ('i', 'z') ('a', 'm') `shouldBe` Overlaps ('a', 'm') ('i', 'z')
-    it "returns Starts if one starts with the other but ends sooner" $ do
-      allensComparison (1, 5) (1, 10) `shouldBe` Starts (1, 5) (1, 10)
-      allensComparison (-1, 2) (-1, 7) `shouldBe` Starts (-1, 2) (-1, 7)
-      allensComparison ('b', 'e') ('b', 'm') `shouldBe` Starts ('b', 'e') ('b', 'm')
-    it "returns Starts if one starts with the other but ends sooner (inversed)" $ do
-      allensComparison (1, 10) (1, 5) `shouldBe` Starts (1, 5) (1, 10)
-      allensComparison (-1, 7) (-1, 2) `shouldBe` Starts (-1, 2) (-1, 7)
-      allensComparison ('b', 'm') ('b', 'e') `shouldBe` Starts ('b', 'e') ('b', 'm')
-    it "returns Finishes if one ends with the other but starts sooner" $ do
-      allensComparison (5, 10) (1, 10) `shouldBe` Finishes (5, 10) (1, 10)
-      allensComparison (2, 7) (-1, 7) `shouldBe` Finishes (2, 7) (-1, 7)
-      allensComparison ('e', 'm') ('b', 'm') `shouldBe` Finishes ('e', 'm') ('b', 'm')
-    it "returns Finishes if one ends with the other but starts sooner (inversed)" $ do
-      allensComparison (1, 10) (5, 10) `shouldBe` Finishes (5, 10) (1, 10)
-      allensComparison (-1, 7) (2, 7) `shouldBe` Finishes (2, 7) (-1, 7)
-      allensComparison ('b', 'm') ('e', 'm') `shouldBe` Finishes ('e', 'm') ('b', 'm')
-    it "returns During if one starts after the other and also ends before the other" $ do
-      allensComparison (5, 10) (1, 20) `shouldBe` During (5, 10) (1, 20)
-      allensComparison (2, 7) (-1, 10) `shouldBe` During (2, 7) (-1, 10)
-      allensComparison ('e', 'm') ('a', 'z') `shouldBe` During ('e', 'm') ('a', 'z')
-    it "returns During if one starts after the other and also ends before the other (inversed)" $ do
-      allensComparison (1, 20) (5, 10) `shouldBe` During (5, 10) (1, 20)
-      allensComparison (-1, 10) (2, 7) `shouldBe` During (2, 7) (-1, 10)
-      allensComparison ('a', 'z') ('e', 'm') `shouldBe` During ('e', 'm') ('a', 'z')
+  describe "intervalContains" $ do
+    it "works for trivial intervals" $ do
+      intervalContains Empty 5 `shouldBe` False
+      intervalContains AllNumbers 5 `shouldBe` True
+      intervalContains (Interval NegativeInfinity PositiveInfinity) 5 `shouldBe` True
+      intervalContains (Interval (Inclusive 4) PositiveInfinity) 5 `shouldBe` True
+      intervalContains (Interval NegativeInfinity (Exclusive 10)) 5 `shouldBe` True
+      intervalContains (Interval (Exclusive 5) (Inclusive 10)) 7 `shouldBe` True
+      intervalContains (Interval (Exclusive 5) (Inclusive 10)) 15 `shouldBe` False
+      intervalContains (Interval (Exclusive 5) (Inclusive 10)) 3 `shouldBe` False
+      intervalContains (Interval (Inclusive 5) (Inclusive 5)) 5 `shouldBe` True
+    it "works for incorrect intervals" $ do
+      intervalContains (Interval PositiveInfinity NegativeInfinity) 5 `shouldBe` False
+      intervalContains (Interval PositiveInfinity (Inclusive 5)) 5 `shouldBe` False
+      intervalContains (Interval (Inclusive 5) NegativeInfinity) 5 `shouldBe` False
+      intervalContains (Interval (Inclusive 6) (Inclusive 4)) 5 `shouldBe` False
+    it "works for inclusive and exclusive bounds" $ do
+      intervalContains (Interval (Exclusive 5) (Inclusive 10)) 10 `shouldBe` True
+      intervalContains (Interval (Exclusive 5) (Inclusive 10)) 10.0001 `shouldBe` False
+      intervalContains (Interval (Exclusive 5) (Inclusive 10)) 5 `shouldBe` False
+      intervalContains (Interval (Exclusive 5) (Inclusive 10)) 5.0001 `shouldBe` True
+      intervalContains (Interval (Inclusive 2) (Exclusive 7)) 7 `shouldBe`  False
+      intervalContains (Interval (Inclusive 0) (Exclusive 1)) 0 `shouldBe` True
+    it "works for infinite bounds" $ do
+      intervalContains (Interval (Exclusive 0) PositiveInfinity) 452 `shouldBe` True
+      intervalContains (Interval (Exclusive 0) PositiveInfinity) (-2) `shouldBe` False
+      intervalContains (Interval NegativeInfinity (Exclusive 0)) (-507) `shouldBe` True
+      intervalContains (Interval NegativeInfinity (Exclusive 0)) 0.75 `shouldBe` False
+    it "works for unions" $ do
+      intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 4 `shouldBe` False
+      intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 6 `shouldBe` True
+      intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 8 `shouldBe` False
+      intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 16 `shouldBe` True
+      intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 20 `shouldBe` False
+    it "works for disjoints" $ do
+      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 6 `shouldBe` False
+      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 6.66 `shouldBe` True
+      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10 `shouldBe` True
+      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10.1 `shouldBe` False
+    it "works for complex intervals" $ do
+      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 6.5 `shouldBe` True
+      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 11 `shouldBe` True
+      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 8 `shouldBe` False
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 7 `shouldBe` True
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 4 `shouldBe` True
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 3 `shouldBe` False
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 15 `shouldBe` False
 
   describe "shapeCircumference" $ do
     it "computes circumference of circle" $ do
@@ -133,105 +148,79 @@ spec = do
       shapeArea (Triangle 5 5 5) `shouldBe` sqrt 117.1875
       shapeArea (Triangle 3 2 4) `shouldBe` sqrt 8.4375
 
-  describe "geometricSequence" $ do
+  describe "arithmeticSequence" $ do
     it "has head always equal to a" $ do
-      head (geometricSequence 5 0) `shouldBe` 5
-      head (geometricSequence 5 10) `shouldBe` 5
-      head (geometricSequence 5 0.5) `shouldBe` 5
-      head (geometricSequence 5 (-2)) `shouldBe` 5
-    it "works with  =1 as repeat" $ do
-      take 20 (geometricSequence 5 1) `shouldBe` replicate 20 5
-      take 20 (geometricSequence (-5) 1) `shouldBe` replicate 20 (-5)
-      take 20 (geometricSequence 0 1) `shouldBe` replicate 20 0
-    it "has just zeroes in tail if r=0" $ do
-      take 20 (tail (geometricSequence 5 0)) `shouldBe` replicate 20 0
-      take 20 (tail (geometricSequence (-5) 0)) `shouldBe` replicate 20 0
-      take 20 (tail (geometricSequence 0 0)) `shouldBe` replicate 20 0
-    it "works with integers r>1" $ do
-      take 10 (geometricSequence 2 2) `shouldBe` [2,4,8,16,32,64,128,256,512,1024]
-      take 10 (geometricSequence 5 2) `shouldBe` [5,10,20,40,80,160,320,640,1280,2560]
-      take 10 (geometricSequence 2 3) `shouldBe` [2,6,18,54,162,486,1458,4374,13122,39366]
-    it "work with integers r<-1" $ do
-      take 10 (geometricSequence 2 (-1)) `shouldBe` [2,-2,2,-2,2,-2,2,-2,2,-2]
-      take 10 (geometricSequence (-1) 2) `shouldBe` [-1,-2,-4,-8,-16,-32,-64,-128,-256,-512]
-      take 10 (geometricSequence 1 (-2)) `shouldBe` [1,-2,4,-8,16,-32,64,-128,256,-512]
-      take 10 (geometricSequence (-1) (-2)) `shouldBe` [-1,2,-4,8,-16,32,-64,128,-256,512]
-    it "work with integers -1>r>1" $ do
-      take 10 (geometricSequence 128 0.5) `shouldBe` [128.0,64.0,32.0,16.0,8.0,4.0,2.0,1.0,0.5,0.25]
-      take 10 (geometricSequence 1024 (-0.5)) `shouldBe` [1024.0,-512.0,256.0,-128.0,64.0,-32.0,16.0,-8.0,4.0,-2.0]
-      take 10 (geometricSequence 1048576 0.25) `shouldBe` [1048576.0,262144.0,65536.0,16384.0,4096.0,1024.0,256.0,64.0,16.0,4.0]
-    it "looks like infinite" $ do
-      geometricSequence 1 2 `shouldContain` [2^100]
-      geometricSequence (-18) 2 `shouldContain` [(-18) * 2^129]
-      geometricSequence 1 5 `shouldContain` [5^1000]
-
-  describe "primes" $ do
-    it "contains basic primes" $ do
-      primes `shouldContain` [2]
-      primes `shouldContain` [3]
-      primes `shouldContain` [5]
-      primes `shouldContain` [7]
-      primes `shouldContain` [11]
-    it "contains various big primes" $ do
-      primes `shouldContain` [9931]
-      primes `shouldContain` [12941]
-      primes `shouldContain` [35323]
-      primes `shouldContain` [56767]
-    it "does not contain composite number" $ do
-      take 3000 primes `shouldNotContain` [4]
-      take 3000 primes `shouldNotContain` [27]
-      take 3000 primes `shouldNotContain` [99]
-      take 3000 primes `shouldNotContain` [666]
-      take 3000 primes `shouldNotContain` [2942]
-    it "does not contain non primes" $ do
-      take 3000 primes `shouldNotContain` [1]
-      take 3000 primes `shouldNotContain` [0]
-      take 3000 primes `shouldNotContain` [-1]
-      take 3000 primes `shouldNotContain` [-2]
-      take 3000 primes `shouldNotContain` [-7]
+      head (arithmeticSequence 5 0) `shouldBe` 5
+      head (arithmeticSequence 5 10) `shouldBe` 5
+      head (arithmeticSequence 5 0.5) `shouldBe` 5
+      head (arithmeticSequence 5 (-2)) `shouldBe` 5
+    it "works with d=0 as repeat" $ do
+      take 20 (arithmeticSequence 5 0) `shouldBe` replicate 20 5
+      take 20 (arithmeticSequence (-5) 0) `shouldBe` replicate 20 (-5)
+      take 20 (arithmeticSequence 0 0) `shouldBe` replicate 20 0
+    it "works with integers d>0" $ do
+      take 10 (arithmeticSequence 2 2) `shouldBe` [2,4,6,8,10,12,14,16,18,20]
+      take 10 (arithmeticSequence 5 5) `shouldBe` [5,10,15,20,25,30,35,40,45,50]
+      take 10 (arithmeticSequence 2 3) `shouldBe` [2,5,8,11,14,17,20,23,26,29]
+    it "work with integers d<0" $ do
+      take 10 (arithmeticSequence 2 (-1)) `shouldBe` [2,1,0,-1,-2,-3,-4,-5,-6,-7]
+      take 10 (arithmeticSequence (-1) (-2)) `shouldBe` [-1,-3,-5,-7,-9,-11,-13,-15,-17,-19]
+      take 10 (arithmeticSequence 0 (-5)) `shouldBe` [0,-5,-10,-15,-20,-25,-30,-35,-40,-45]
+    it "seems to be infinite" $ do
+      arithmeticSequence 0 2 `shouldContain` [1024]
+      arithmeticSequence (-257) 19 `shouldContain` [(-257) + 1900]
+      arithmeticSequence 5 (-5) `shouldContain` [(-5)*21786]
+  describe "fibonacciNumbers" $ do
+    it "contains basic fibonacci numbers" $ do
+      fibonacciNumbers `shouldContain` [3]
+      fibonacciNumbers `shouldContain` [5]
+      fibonacciNumbers `shouldContain` [8]
+      fibonacciNumbers `shouldContain` [13]
+      fibonacciNumbers `shouldContain` [21]
+    it "contains various big fibonacci numbers" $ do
+      fibonacciNumbers `shouldContain` [6765]
+      fibonacciNumbers `shouldContain` [75025]
+      fibonacciNumbers `shouldContain` [514229]
+      fibonacciNumbers `shouldContain` [832040]
+      fibonacciNumbers `shouldContain` [354224848179261915075]
+    it "does not contain non-fibbonacci numbers" $ do
+      let fibonacciNumbers3000 = take 3000 fibonacciNumbers
+      fibonacciNumbers3000 `shouldNotContain` [4]
+      fibonacciNumbers3000 `shouldNotContain` [27]
+      fibonacciNumbers3000 `shouldNotContain` [99]
+      fibonacciNumbers3000 `shouldNotContain` [666]
+      fibonacciNumbers3000 `shouldNotContain` [2942]
+    it "does not contain negative numbers" $ do
+      let fibonacciNumbers10000 = take 10000 fibonacciNumbers
+      all (>=0) fibonacciNumbers10000 `shouldBe` True
     it "has primes on correct positions" $ do
-      head primes `shouldBe` 2
-      primes !! 4 `shouldBe` 11
-      primes !! 141 `shouldBe` 821
-      primes !! 666 `shouldBe` 4987
-      primes !! 2653 `shouldBe` 23869
+      head fibonacciNumbers `shouldBe` 0
+      fibonacciNumbers !! 1 `shouldBe` 1
+      fibonacciNumbers !! 15 `shouldBe` 610
+      fibonacciNumbers !! 42 `shouldBe` 267914296
+      fibonacciNumbers !! 666 `shouldBe` 6859356963880484413875401302176431788073214234535725264860437720157972142108894511264898366145528622543082646626140527097739556699078708088
 
-  describe "factorization" $ do
-    it "returns empty list for zero and one(s)" $ do
-      factorization 0 `shouldBe` []
-      factorization 1 `shouldBe` []
-      factorization (-1) `shouldBe` []
-    it "give single factor (itself) for primes" $ do
-      factorization 2 `shouldBe` [2]
-      factorization 5 `shouldBe` [5]
-      factorization 13 `shouldBe` [13]
-      factorization 9931 `shouldBe` [9931]
-    it "give prime factors of compound (single) in ascending order" $ do
-      factorization 15 `shouldBe` [3,5]
-      factorization 77 `shouldBe` [7,11]
-      factorization 210 `shouldBe` [2,3,5,7]
-    it "give prime factors of compound (repeating) in ascending order" $ do
-      factorization 8 `shouldBe` [2,2,2]
-      factorization 45 `shouldBe` [3,3,5]
-      factorization 180 `shouldBe` [2,2,3,3,5]
-
-  describe "phi" $ do
+  describe "matrixMultiplication" $ do
     it "works for trivial cases" $ do
-      phi 0 `shouldBe` 0
-      phi 1 `shouldBe` 1
-      phi (-1) `shouldBe` 1
-    it "works for primes" $ do
-      phi 2 `shouldBe` 1
-      phi 3 `shouldBe` 2
-      phi 167 `shouldBe` 166
-      phi (-4973) `shouldBe` 4972
-      phi 56767 `shouldBe` 56766
-    it "works for composite numbers" $ do
-      phi 10 `shouldBe` 4
-      phi 16 `shouldBe` 8
-      phi 666 `shouldBe` 216
-      phi (-15684) `shouldBe` 5224
-      phi 56766 `shouldBe` 18920
+      matrixMultiplication [[1]] [[1]] `shouldBe` [[1]]
+      matrixMultiplication [[1]] [[2]] `shouldBe` [[2]]
+      matrixMultiplication [[10]] [[0]] `shouldBe` [[0]]
+    it "works for identity matrix" $ do
+      matrixMultiplication matrixA [[1,0],[0,1]] `shouldBe` matrixA
+      matrixMultiplication matrixB [[1,0],[0,1]] `shouldBe` matrixB
+      matrixMultiplication [[1,0],[0,1]] matrixA `shouldBe` matrixA
+      matrixMultiplication [[1,0],[0,1]] matrixB `shouldBe` matrixB
+    it "works with square matrices" $ do
+      matrixMultiplication matrixA matrixB `shouldBe` [[7,19],[19,43]]
+      matrixMultiplication matrixB matrixA `shouldBe` [[20,30],[22,30]]
+    it "works with correct sizes" $ do
+      matrixMultiplication matrixA matrixC `shouldBe` [[17,5,4],[37,11,10]]
+      matrixMultiplication matrixB matrixC `shouldBe` [[50,15,15],[52,15,9]]
+      matrixMultiplication matrixC matrixD `shouldBe` [[13,10],[26,12]]
+    it "raises error for bad sizes" $ do
+      evaluate (matrixMultiplication [[1]] matrixA) `shouldThrow` errorCall "Incorrect matrix sizes"
+      evaluate (matrixMultiplication matrixA eye10) `shouldThrow` errorCall "Incorrect matrix sizes"
+      evaluate (matrixMultiplication matrixE matrixD) `shouldThrow` errorCall "Incorrect matrix sizes"
 
   describe "imports" $ do
     it "has correct example 1" $
