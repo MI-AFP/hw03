@@ -51,10 +51,6 @@ data Interval = Empty
               | AllNumbers
               deriving (Show, Read, Eq)
 
--- | Simplify interval if possible (union & disjoint)
-intervalSimplify :: Interval -> Interval
-intervalSimplify = undefined
-
 -- | Check if number is in given interval
 intervalContains :: Interval -> Double -> Bool
 intervalContains = undefined

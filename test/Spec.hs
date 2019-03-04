@@ -64,54 +64,22 @@ spec = do
       czechSalutation (Person "Anastazie" "Rudá" Female Married 66 [Mgr, Ing, Doc]) `shouldBe` "paní docentka Anastazie Rudá"
       czechSalutation (Person "Denisa" "Šídlová" Female Widowed 74 [Ing, PhD, Prof]) `shouldBe` "paní profesorka Denisa Šídlová"
 
-  describe "intervalSimplify" $ do
-    it "does not simplify simple intervals" $ do
-      intervalSimplify Empty `shouldBe` Empty
-      intervalSimplify (Interval (Exclusive 0) (Exclusive 1)) `shouldBe` (Interval (Exclusive 0) (Exclusive 1))
-      intervalSimplify (Interval (Inclusive (-10)) (Exclusive 10)) `shouldBe` (Interval (Inclusive (-10)) (Exclusive 10))
-      intervalSimplify (Interval NegativeInfinity (Inclusive 10)) `shouldBe` (Interval NegativeInfinity (Inclusive 10))
-      intervalSimplify (Interval (Inclusive 7) PositiveInfinity) `shouldBe` (Interval (Inclusive 7) PositiveInfinity)
-      intervalSimplify AllNumbers `shouldBe` AllNumbers
-    it "simplifies trivial intervals to empty" $ do
-      intervalSimplify (Interval (Exclusive 0) (Exclusive 0)) `shouldBe` Empty
-      intervalSimplify (Disjoint []) `shouldBe` Empty
-      intervalSimplify (Disjoint [Empty]) `shouldBe` Empty
-      intervalSimplify (Disjoint [Empty, (Interval (Exclusive 0) (Exclusive 0))]) `shouldBe` Empty
-      intervalSimplify (Union []) `shouldBe` Empty
-      intervalSimplify (Union [Empty]) `shouldBe` Empty
-      intervalSimplify (Union [Empty, (Interval (Exclusive 0) (Exclusive 0))]) `shouldBe` Empty
-    it "simplifies badly bounded intervals to empty" $ do
-      intervalSimplify (Interval (Inclusive 10) (Inclusive 0)) `shouldBe` Empty
-      intervalSimplify (Interval (Exclusive 17) (Inclusive 5)) `shouldBe` Empty
-      intervalSimplify (Interval PositiveInfinity NegativeInfinity) `shouldBe` Empty
-      intervalSimplify (Interval PositiveInfinity (Inclusive 2)) `shouldBe` Empty
-    it "simplifies to all numbers" $ do
-      intervalSimplify (Interval NegativeInfinity PositiveInfinity) `shouldBe` AllNumbers
-      intervalSimplify (Union [(Interval (Inclusive 1) (Exclusive 5.5)), AllNumbers]) `shouldBe` AllNumbers
-      intervalSimplify (Union [(Interval (Inclusive 0) PositiveInfinity), (Interval NegativeInfinity (Inclusive 0))]) `shouldBe` AllNumbers
-      intervalSimplify (Union [(Interval (Exclusive 5) PositiveInfinity), (Interval NegativeInfinity (Exclusive 2)), Interval (Inclusive 1) (Exclusive 7)]) `shouldBe` AllNumbers
-    it "simplifies disjoints" $ do
-      intervalSimplify (Disjoint [Interval NegativeInfinity PositiveInfinity, Interval (Inclusive 5) (Inclusive 10)]) `shouldBe` Interval (Inclusive 5) (Inclusive 10)
-      intervalSimplify (Disjoint [Interval NegativeInfinity PositiveInfinity, Interval (Inclusive 5) PositiveInfinity]) `shouldBe` Interval (Inclusive 5) PositiveInfinity
-      intervalSimplify (Disjoint [AllNumbers, Interval NegativeInfinity (Inclusive 10)]) `shouldBe` Interval NegativeInfinity (Inclusive 10)
-      intervalSimplify (Disjoint [Interval (Exclusive 5) (Inclusive 10), Interval (Exclusive 2) (Exclusive 9)]) `shouldBe` Interval (Exclusive 5) (Exclusive 9)
-      intervalSimplify (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 2) (Exclusive 10)]) `shouldBe` Interval (Inclusive 5) (Exclusive 10)
-      intervalSimplify (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 2) (Exclusive 7), Interval (Exclusive 4) (Exclusive 10)]) `shouldBe` Interval (Inclusive 4) (Exclusive 7)
-    it "simplifies union" $ do
-      intervalSimplify (Union [Interval (Inclusive 2) (Exclusive 7), Interval (Inclusive 5) (Inclusive 10)]) `shouldBe` Interval (Inclusive 2) (Inclusive 10)
-      intervalSimplify (Union [Interval NegativeInfinity PositiveInfinity, Interval (Inclusive 5) PositiveInfinity]) `shouldBe` Interval (Inclusive 5) PositiveInfinity
-      intervalSimplify (Union [AllNumbers, Interval NegativeInfinity (Inclusive 10)]) `shouldBe` Interval NegativeInfinity (Inclusive 10)
-      intervalSimplify (Union [Interval (Exclusive 5) (Inclusive 10), Interval (Exclusive 2) (Exclusive 9)]) `shouldBe` Interval (Exclusive 5) (Exclusive 9)
-      intervalSimplify (Union [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 2) (Exclusive 10)]) `shouldBe` Interval (Inclusive 5) (Exclusive 10)
-      intervalSimplify (Union [Interval (Inclusive 5) (Inclusive 10), Interval (Inclusive 10) (Exclusive 20)]) `shouldBe` Interval (Inclusive 5) (Exclusive 20)
-      intervalSimplify (Union [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 10) (Exclusive 20)]) `shouldBe` Union [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 10) (Exclusive 20)]
   describe "intervalContains" $ do
     it "works for trivial intervals" $ do
       intervalContains Empty 5 `shouldBe` False
       intervalContains AllNumbers 5 `shouldBe` True
+      intervalContains (Interval NegativeInfinity PositiveInfinity) 5 `shouldBe` True
+      intervalContains (Interval (Inclusive 4) PositiveInfinity) 5 `shouldBe` True
+      intervalContains (Interval NegativeInfinity (Exclusive 10)) 5 `shouldBe` True
       intervalContains (Interval (Exclusive 5) (Inclusive 10)) 7 `shouldBe` True
       intervalContains (Interval (Exclusive 5) (Inclusive 10)) 15 `shouldBe` False
       intervalContains (Interval (Exclusive 5) (Inclusive 10)) 3 `shouldBe` False
+      intervalContains (Interval (Inclusive 5) (Inclusive 5)) 5 `shouldBe` True
+    it "works for incorrect intervals" $ do
+      intervalContains (Interval PositiveInfinity NegativeInfinity) 5 `shouldBe` False
+      intervalContains (Interval PositiveInfinity (Inclusive 5)) 5 `shouldBe` False
+      intervalContains (Interval (Inclusive 5) NegativeInfinity) 5 `shouldBe` False
+      intervalContains (Interval (Inclusive 6) (Inclusive 4)) 5 `shouldBe` False
     it "works for inclusive and exclusive bounds" $ do
       intervalContains (Interval (Exclusive 5) (Inclusive 10)) 10 `shouldBe` True
       intervalContains (Interval (Exclusive 5) (Inclusive 10)) 10.0001 `shouldBe` False
@@ -135,6 +103,14 @@ spec = do
       intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 6.66 `shouldBe` True
       intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10 `shouldBe` True
       intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10.1 `shouldBe` False
+    it "works for complex intervals" $ do
+      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 6.5 `shouldBe` True
+      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 11 `shouldBe` True
+      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 8 `shouldBe` False
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 7 `shouldBe` True
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 4 `shouldBe` True
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 3 `shouldBe` False
+      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 15 `shouldBe` False
 
   describe "shapeCircumference" $ do
     it "computes circumference of circle" $ do
