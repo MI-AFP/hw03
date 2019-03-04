@@ -37,26 +37,27 @@ czechSalutation = undefined
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPE!
--- https://en.wikipedia.org/wiki/Allen%27s_interval_algebra
--- Notice that even DATA CONSTRUCTOR can be written in infix by using ` `
--- - it is normal, because data constructor is actually function!
---
---                                 X                Y
-data AllensIAlgebraRelation a = (a, a) `Equals`   (a, a) -- X = Y
-                              | (a, a) `Before`   (a, a) -- X < Y
-                              | (a, a) `Meets`    (a, a) -- X m Y
-                              | (a, a) `Overlaps` (a, a) -- X o Y
-                              | (a, a) `Starts`   (a, a) -- X s Y
-                              | (a, a) `During`   (a, a) -- X d Y
-                              | (a, a) `Finishes` (a, a) -- X f Y
-                             deriving (Show, Read, Eq)
+-- https://en.wikipedia.org/wiki/Interval_(mathematics)
+data IntervalBoundary = PositiveInfinity
+                      | NegativeInfinity
+                      | Inclusive Double
+                      | Exclusive Double
+                      deriving (Show, Read, Eq)
 
--- | Compare two intervals given as tuples and return appropriate
--- | Allen's Interval Algebra relation between them
--- | It assumes that for (x, y) is always x <= y
--- TODO: implement Allen's algebra relation detection of intervals
-allensComparison :: Ord a => (a, a) -> (a, a) -> AllensIAlgebraRelation a
-allensComparison = undefined
+data Interval = Empty
+              | Interval IntervalBoundary IntervalBoundary
+              | Union [Interval]
+              | Disjoint [Interval]
+              | AllNumbers
+              deriving (Show, Read, Eq)
+
+-- | Simplify interval if possible (union & disjoint)
+intervalSimplify :: Interval -> Interval
+intervalSimplify = undefined
+
+-- | Check if number is in given interval
+intervalContains :: Interval -> Double -> Bool
+intervalContains = undefined
 
 -------------------------------------------------------------------------------
 -- DO NOT EDIT DATA TYPE!
@@ -75,28 +76,24 @@ shapeArea :: Shape2D -> Double
 shapeArea = undefined
 
 -------------------------------------------------------------------------------
--- | Geometric sequence as infinite list
--- | https://en.wikipedia.org/wiki/Geometric_progression
--- TODO: implement geometric series
-geometricSequence :: Num b => b -> b -> [b]
-geometricSequence a r = undefined
+-- | Arithmetic sequence as infinite list
+-- | https://en.wikipedia.org/wiki/Arithmetic_progression
+-- TODO: implement arithmetic series
+arithmeticSequence :: Num b => b -> b -> [b]
+arithmeticSequence a d = undefined
 
 
--- TODO: implement infinite list of primes [2, 3, 5, 7, 11, ...]
-primes :: [Integer]
-primes = undefined
+-- TODO: implement infinite list of fibonacciNumbers [0, 1, 1, 2, 3, 5, ...]
+fibonacciNumbers :: [Integer]
+fibonacciNumbers = undefined
 
--- TODO: implement list of prime factors for given number (use primes list)
-factorization :: Integer -> [Integer]
-factorization = undefined
-
-
--- | Euler's totient function
--- | https://en.wikipedia.org/wiki/Euler%27s_totient_function
--- TODO: implement phi(n) by using search in primes & factorization
-phi :: Integer -> Integer
-phi = undefined
-
+-- TODO: multiply matrices x and y
+-- TODO: use list comprehension!!!
+-- https://en.wikipedia.org/wiki/Matrix_multiplication
+-- Note: sublists are rows
+-- if wrong sizes, raise error "Incorrect matrix sizes" (use "error" function)
+matrixMultiplication :: Num a => [[a]] -> [[a]] -> [[a]]
+matrixMultiplication x y = undefined
 -------------------------------------------------------------------------------
 -- !!! DO NOT COPY, JUST IMPORT (avoid conflicts, pick the best option for you)
 -- iii visit the content of modules
