@@ -28,6 +28,12 @@ eye10 = [
             [0,0,0,0,0,0,0,0,0,1]
         ]
 
+
+shouldBeCloseTo :: Double -> Double -> Expectation
+shouldBeCloseTo actual expected =
+  actual `shouldSatisfy` (\x -> abs (x - expected) < 1e-9)
+
+
 spec :: Spec
 spec = do
   describe "czechSalutation" $ do
@@ -93,30 +99,36 @@ spec = do
       intervalContains (Interval NegativeInfinity (Exclusive 0)) (-507) `shouldBe` True
       intervalContains (Interval NegativeInfinity (Exclusive 0)) 0.75 `shouldBe` False
     it "works for unions" $ do
+      intervalContains (Union []) 5 `shouldBe` False
+      intervalContains (Union [AllNumbers]) 5 `shouldBe` True
+      intervalContains (Union [Empty]) 5 `shouldBe` False
       intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 4 `shouldBe` False
       intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 6 `shouldBe` True
       intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 8 `shouldBe` False
       intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 16 `shouldBe` True
       intervalContains (Union [Interval (Inclusive 5) (Inclusive 7), Interval (Exclusive 15) (Exclusive 20)]) 20 `shouldBe` False
-    it "works for disjoints" $ do
-      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 6 `shouldBe` False
-      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 6.66 `shouldBe` True
-      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10 `shouldBe` True
-      intervalContains (Disjoint [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10.1 `shouldBe` False
+    it "works for intersections" $ do
+      intervalContains (Intersection []) 5 `shouldBe` True
+      intervalContains (Intersection [AllNumbers]) 5 `shouldBe` True
+      intervalContains (Intersection [Empty]) 5 `shouldBe` False
+      intervalContains (Intersection [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 6 `shouldBe` False
+      intervalContains (Intersection [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 6.66 `shouldBe` True
+      intervalContains (Intersection [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10 `shouldBe` True
+      intervalContains (Intersection [Interval (Inclusive 5) (Inclusive 10), Interval (Exclusive 6) (Exclusive 20)]) 10.1 `shouldBe` False
     it "works for complex intervals" $ do
-      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 6.5 `shouldBe` True
-      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 11 `shouldBe` True
-      intervalContains (Disjoint [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 8 `shouldBe` False
-      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 7 `shouldBe` True
-      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 4 `shouldBe` True
-      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 3 `shouldBe` False
-      intervalContains (Union [Disjoint [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 15 `shouldBe` False
+      intervalContains (Intersection [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 6.5 `shouldBe` True
+      intervalContains (Intersection [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 11 `shouldBe` True
+      intervalContains (Intersection [Union [Interval (Exclusive 0) (Exclusive 5), Interval (Inclusive 5) (Exclusive 7), Interval (Inclusive 10) (Exclusive 20)], Interval (Exclusive 6) (Exclusive 15)]) 8 `shouldBe` False
+      intervalContains (Union [Intersection [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 7 `shouldBe` True
+      intervalContains (Union [Intersection [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 4 `shouldBe` True
+      intervalContains (Union [Intersection [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 3 `shouldBe` False
+      intervalContains (Union [Intersection [Interval (Exclusive 3) (Exclusive 6), Interval (Inclusive 4) (Inclusive 8)], Interval (Inclusive 5) (Exclusive 15)]) 15 `shouldBe` False
 
   describe "shapeCircumference" $ do
     it "computes circumference of circle" $ do
-      shapeCircumference (Circle 5) `shouldBe` 10.0 * pi
-      shapeCircumference (Circle 1) `shouldBe` 2.0 * pi
-      shapeCircumference (Circle 10) `shouldBe` 20.0 * pi
+      shapeCircumference (Circle 5) `shouldBeCloseTo` (10.0 * pi)
+      shapeCircumference (Circle 1) `shouldBeCloseTo` (2.0 * pi)
+      shapeCircumference (Circle 10) `shouldBeCloseTo` (20.0 * pi)
     it "computes circumference of square" $ do
       shapeCircumference (Square 5)  `shouldBe` 20
       shapeCircumference (Square 1) `shouldBe` 4
@@ -132,9 +144,9 @@ spec = do
 
   describe "shapeArea" $ do
     it "computes area of circle" $ do
-      shapeArea (Circle 5) `shouldBe` 25 * pi
-      shapeArea (Circle 1) `shouldBe` pi
-      shapeArea (Circle 10) `shouldBe` 100 * pi
+      shapeArea (Circle 5) `shouldBeCloseTo` (25 * pi)
+      shapeArea (Circle 1) `shouldBeCloseTo` pi
+      shapeArea (Circle 10) `shouldBeCloseTo` (100 * pi)
     it "computes area of square" $ do
       shapeArea (Square 5) `shouldBe` 25
       shapeArea (Square 1) `shouldBe` 1
@@ -144,32 +156,33 @@ spec = do
       shapeArea (Rectangle 5 5) `shouldBe` 25
       shapeArea (Rectangle 3 1) `shouldBe` 3
     it "computes area of triangle" $ do
-      shapeArea (Triangle 3 5 4) `shouldBe` 6
-      shapeArea (Triangle 5 5 5) `shouldBe` sqrt 117.1875
-      shapeArea (Triangle 3 2 4) `shouldBe` sqrt 8.4375
+      shapeArea (Triangle 3 5 4) `shouldBeCloseTo` 6
+      shapeArea (Triangle 5 5 5) `shouldBeCloseTo` (sqrt 117.1875)
+      shapeArea (Triangle 3 2 4) `shouldBeCloseTo` (sqrt 8.4375)
 
-  describe "arithmeticSequence" $ do
+  describe "geometricSequence" $ do
     it "has head always equal to a" $ do
-      head (arithmeticSequence 5 0) `shouldBe` 5
-      head (arithmeticSequence 5 10) `shouldBe` 5
-      head (arithmeticSequence 5 0.5) `shouldBe` 5
-      head (arithmeticSequence 5 (-2)) `shouldBe` 5
-    it "works with d=0 as repeat" $ do
-      take 20 (arithmeticSequence 5 0) `shouldBe` replicate 20 5
-      take 20 (arithmeticSequence (-5) 0) `shouldBe` replicate 20 (-5)
-      take 20 (arithmeticSequence 0 0) `shouldBe` replicate 20 0
-    it "works with integers d>0" $ do
-      take 10 (arithmeticSequence 2 2) `shouldBe` [2,4,6,8,10,12,14,16,18,20]
-      take 10 (arithmeticSequence 5 5) `shouldBe` [5,10,15,20,25,30,35,40,45,50]
-      take 10 (arithmeticSequence 2 3) `shouldBe` [2,5,8,11,14,17,20,23,26,29]
-    it "work with integers d<0" $ do
-      take 10 (arithmeticSequence 2 (-1)) `shouldBe` [2,1,0,-1,-2,-3,-4,-5,-6,-7]
-      take 10 (arithmeticSequence (-1) (-2)) `shouldBe` [-1,-3,-5,-7,-9,-11,-13,-15,-17,-19]
-      take 10 (arithmeticSequence 0 (-5)) `shouldBe` [0,-5,-10,-15,-20,-25,-30,-35,-40,-45]
-    it "seems to be infinite" $ do
-      arithmeticSequence 0 2 `shouldContain` [1024]
-      arithmeticSequence (-257) 19 `shouldContain` [(-257) + 1900]
-      arithmeticSequence 5 (-5) `shouldContain` [(-5)*21786]
+      head (geometricSequence 5 0) `shouldBe` 5
+      head (geometricSequence 5 10) `shouldBe` 5
+      head (geometricSequence 5 0.5) `shouldBe` 5
+      head (geometricSequence 5 (-2)) `shouldBe` 5
+    it "works with r=1 as repeat" $ do
+      take 20 (geometricSequence 5 1) `shouldBe` replicate 20 5
+      take 20 (geometricSequence (-5) 1) `shouldBe` replicate 20 (-5)
+      take 20 (geometricSequence 0 1) `shouldBe` replicate 20 0
+    it "works with integers r>0" $ do
+      take 10 (geometricSequence 2 2) `shouldBe` [2,4,8,16,32,64,128,256,512,1024]
+      take 10 (geometricSequence 5 5) `shouldBe` [5,25,125,625,3125,15625,78125,390625,1953125,9765625]
+      take 10 (geometricSequence 4 1.5) `shouldBe` [4,6,9,13.5,20.25,30.375,45.5625,68.34375,102.515625,153.7734375]
+      take 10 (geometricSequence 0.5 2) `shouldBe` [0.5,1,2,4,8,16,32,64,128,256]
+    it "works with integers r<0" $ do
+      take 10 (geometricSequence 2 (-1)) `shouldBe` [2,-2,2,-2,2,-2,2,-2,2,-2]
+      take 10 (geometricSequence (-1) (-2)) `shouldBe` [-1,2,-4,8,-16,32,-64,128,-256,512]
+      take 10 (geometricSequence 512 (-0.5)) `shouldBe` [512,-256,128,-64,32,-16,8,-4,2,-1]
+    it "looks like infinite" $ do
+      geometricSequence 1 2 `shouldContain` [1048576]
+      geometricSequence (-257) 4 `shouldContain` [(-257) * 17179869184]
+      geometricSequence 5 (-5) `shouldContain` [5 * 244140625]
   describe "fibonacciNumbers" $ do
     it "contains basic fibonacci numbers" $ do
       fibonacciNumbers `shouldContain` [3]

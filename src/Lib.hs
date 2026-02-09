@@ -47,7 +47,7 @@ data IntervalBoundary = PositiveInfinity
 data Interval = Empty
               | Interval IntervalBoundary IntervalBoundary
               | Union [Interval]
-              | Disjoint [Interval]
+              | Intersection [Interval]
               | AllNumbers
               deriving (Show, Read, Eq)
 
@@ -72,11 +72,11 @@ shapeArea :: Shape2D -> Double
 shapeArea = undefined
 
 -------------------------------------------------------------------------------
--- | Arithmetic sequence as infinite list
--- | https://en.wikipedia.org/wiki/Arithmetic_progression
--- TODO: implement arithmetic series
-arithmeticSequence :: Num b => b -> b -> [b]
-arithmeticSequence a d = undefined
+-- | Geometric sequence as infinite list
+-- | https://en.wikipedia.org/wiki/Geometric_progression
+-- TODO: implement geometric series
+geometricSequence :: Num b => b -> b -> [b]
+geometricSequence a r = undefined
 
 
 -- TODO: implement infinite list of fibonacciNumbers [0, 1, 1, 2, 3, 5, ...]
